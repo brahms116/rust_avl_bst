@@ -1,7 +1,9 @@
+mod primitive_test;
+
 pub struct PrimitiveNode {
-	index: u32,
-	left: Option<Box<PrimitiveNode>>,
-	right: Option<Box<PrimitiveNode>>,
+	pub index: u32,
+	pub left: Option<Box<PrimitiveNode>>,
+	pub right: Option<Box<PrimitiveNode>>,
 }
 
 impl PrimitiveNode {
@@ -114,16 +116,16 @@ impl PrimitiveNode {
 	}
 
 	pub fn find_right_height(&self) -> i32 {
-		if let Some(child) = self.left.as_ref() {
-			return 1 + child.find_height();
-		}
-		0
-	}
-
-	pub fn find_left_height(&self) -> i32 {
 		if let Some(child) = self.right.as_ref() {
 			return 1 + child.find_height();
 		}
-		0
+		1
+	}
+
+	pub fn find_left_height(&self) -> i32 {
+		if let Some(child) = self.left.as_ref() {
+			return 1 + child.find_height();
+		}
+		1
 	}
 }
