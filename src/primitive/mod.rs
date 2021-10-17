@@ -23,6 +23,12 @@ impl PrimitiveNode {
 		return left;
 	}
 
+	// pub fn delete(mut item: Box<PrimitiveNode>) -> Box<PrimitiveNode> {
+	/* Can't complete this function with this design */
+	/* check if left child and right child exists */
+	/* In order accessor can be found by the leftest most node on the right side of this node */
+	// }
+
 	pub fn left(mut item: Box<PrimitiveNode>) -> Box<PrimitiveNode> {
 		let mut right = item.right.unwrap();
 		let right_left_opt = right.left.take();

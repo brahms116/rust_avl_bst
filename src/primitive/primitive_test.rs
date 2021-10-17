@@ -60,4 +60,26 @@ mod tests {
 		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(4));
 		assert_eq!(root.index, 6)
 	}
+	#[test]
+	fn subtree_rotation() {
+		let mut root = Box::new(PrimitiveNode::new(6));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(3));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(9));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(4));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(1));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(0));
+		assert_eq!(root.index, 3);
+		assert_eq!(root.right.unwrap().left.unwrap().index, 4);
+	}
+	#[test]
+	fn search() {
+		let mut root = Box::new(PrimitiveNode::new(6));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(3));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(9));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(4));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(1));
+		root = PrimitiveNode::insert_item(root, PrimitiveNode::new(0));
+		let obj = root.search(6).unwrap();
+		assert_eq!(obj.left.as_ref().unwrap().index, 4)
+	}
 }
