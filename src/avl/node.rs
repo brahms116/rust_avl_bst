@@ -1,59 +1,95 @@
 pub struct Node<K, V>
 where
-	K: PartialOrd,
+    K: PartialOrd,
 {
-	pub index: K,
-	pub value: V,
-	pub left: Option<Box<Node<K, V>>>,
-	pub right: Option<Box<Node<K, V>>>,
+    pub index: K,
+    pub value: V,
+    pub left: Option<Box<Node<K, V>>>,
+    pub right: Option<Box<Node<K, V>>>,
 }
 
 impl<K: PartialOrd, V> Node<K, V> {
-	pub fn new(index: K, value: V) -> Node<K, V> {
-		Node {
-			index,
-			value,
-			left: None,
-			right: None,
-		}
-	}
+    pub fn new(index: K, value: V) -> Node<K, V> {
+        Node {
+            index,
+            value,
+            left: None,
+            right: None,
+        }
+    }
 
-	pub fn right(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
-		let mut left = node.left.unwrap();
-		let left_right_opt = left.right.take();
-		node.left = left_right_opt;
-		left.right = Some(node);
-		return left;
-	}
+    pub fn check_balance(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
+        let left_height = Node::find_left_height(&node);
+        let right_height = Node::find_right_height(&node);
 
-	pub fn left(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
-		let mut right = node.right.unwrap();
-		let right_left_opt = right.left.take();
-		node.right = right_left_opt;
-		right.left = Some(node);
-		return right;
-	}
+        if left_height - right_height > 1 {
+            let child = node.left.as_ref().unwrap();
+            let left = Node::find_left_height(&child);
+            let right = Node::find_right_height(&child);
 
-	pub fn find_right_height(node: &Box<Node<K, V>>) -> i32 {
-		if let Some(child) = node.right.as_ref() {
-			return 1 + Node::find_height(child);
-		}
-		1
-	}
-	pub fn find_left_height(node: &Box<Node<K, V>>) -> i32 {
-		if let Some(child) = node.left.as_ref() {
-			return 1 + Node::find_height(child);
-		}
-		1
-	}
-	pub fn find_height(node: &Box<Node<K, V>>) -> i32 {
-		let left_height = Node::find_left_height(node);
-		let right_height = Node::find_right_height(node);
+            if left > right {
+                /*leftleft rotate right */
+                return Node::right(node);
+            } else {
+                /*leftright rotate  left then right */
+                let mut child = node.left.take().unwrap();
+                child = Node::left(child);
+                return Node::right(child);
+            }
+        } else if right_height - left_height > 1 {
+            let child = node.right.as_ref().unwrap();
+            let left = Node::find_left_height(&child);
+            let right = Node::find_right_height(&child);
 
-		if left_height > right_height {
-			left_height
-		} else {
-			right_height
-		}
-	}
+            if right > left {
+                /*rightright rotate left*/
+                return Node::left(node);
+            } else {
+                /*rightleft	rotate right then left */
+                let mut child = node.right.take().unwrap();
+                child = Node::right(child);
+                return Node::left(child);
+            }
+        }
+        return node;
+    }
+
+    pub fn right(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
+        let mut left = node.left.unwrap();
+        let left_right_opt = left.right.take();
+        node.left = left_right_opt;
+        left.right = Some(node);
+        return left;
+    }
+
+    pub fn left(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
+        let mut right = node.right.unwrap();
+        let right_left_opt = right.left.take();
+        node.right = right_left_opt;
+        right.left = Some(node);
+        return right;
+    }
+
+    pub fn find_right_height(node: &Box<Node<K, V>>) -> i32 {
+        if let Some(child) = node.right.as_ref() {
+            return 1 + Node::find_height(child);
+        }
+        1
+    }
+    pub fn find_left_height(node: &Box<Node<K, V>>) -> i32 {
+        if let Some(child) = node.left.as_ref() {
+            return 1 + Node::find_height(child);
+        }
+        1
+    }
+    pub fn find_height(node: &Box<Node<K, V>>) -> i32 {
+        let left_height = Node::find_left_height(node);
+        let right_height = Node::find_right_height(node);
+
+        if left_height > right_height {
+            left_height
+        } else {
+            right_height
+        }
+    }
 }
