@@ -1,6 +1,7 @@
 pub mod node;
 
 use node::Node;
+
 pub struct AvlTree<K: PartialOrd, V> {
     root: Option<Box<Node<K, V>>>,
 }
@@ -8,5 +9,38 @@ pub struct AvlTree<K: PartialOrd, V> {
 impl<K: PartialOrd, V> AvlTree<K, V> {
     pub fn new() -> AvlTree<K, V> {
         AvlTree { root: None }
+    }
+
+    pub fn insert(&mut self, k: K, v: V) {
+        if let Some(mut root) = self.root.take() {
+            root = Node::insert(root, Box::new(Node::new(k, v)));
+            self.root = Some(root);
+        } else {
+            self.root = Some(Box::new(Node::new(k, v)))
+        }
+    }
+
+    pub fn get_as_mut(&mut self, key: &K) -> Option<&mut V> {
+        if let Some(root) = self.root.as_mut() {
+            if let Some(node) = Node::search(root, key) {
+                return Some(&mut node.value);
+            }
+            return None;
+        }
+        None
+    }
+    pub fn get_as_ref(&mut self, key: &K) -> Option<&V> {
+        if let Some(root) = self.root.as_mut() {
+            if let Some(node) = Node::search(root, key) {
+                return Some(&node.value);
+            }
+            return None;
+        }
+        None
+    }
+
+    pub fn delete(&mut self, key: &K) -> Result<(), ()> {
+        if let Some(mut node) = self.root.as_mut() {}
+        Ok(())
     }
 }
