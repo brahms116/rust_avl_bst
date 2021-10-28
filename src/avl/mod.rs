@@ -1,3 +1,4 @@
+mod avl_tests;
 pub mod node;
 
 use node::Node;
@@ -49,5 +50,8 @@ impl<K: PartialOrd, V> AvlTree<K, V> {
             }
         }
         Err(())
+    }
+    pub fn get_root(&mut self) -> Option<&mut Box<Node<K, V>>> {
+        self.root.as_mut()
     }
 }
