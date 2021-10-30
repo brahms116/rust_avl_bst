@@ -33,7 +33,10 @@ impl<K: PartialOrd, V> Node<K, V> {
         return Some(node);
     }
 
-    pub fn search_child_to_delete<'a>(node: &'a mut Box<Node<K, V>>, key: &K) -> Result<(), ()> {
+    pub fn search_child_to_delete<'a>(
+        mut node: &'a mut Box<Node<K, V>>,
+        key: &K,
+    ) -> Result<(), ()> {
         if *key < node.index {
             if let Some(child) = node.left.as_mut() {
                 if child.index == *key {
