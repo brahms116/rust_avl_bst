@@ -33,30 +33,36 @@ impl<K: PartialOrd, V> Node<K, V> {
         return Some(node);
     }
 
-    pub fn search_child_to_delete<'a>(
-        mut node: &'a mut Box<Node<K, V>>,
+    pub fn search_child_to_delete(
+        mut node: Box<Node<K, V>>,
         key: &K,
-    ) -> Result<(), ()> {
+    ) -> Result<Box<Node<K, V>>, Box<Node<K, V>>> {
         if *key < node.index {
-            if let Some(child) = node.left.as_mut() {
+            if let Some(mut child) = node.left.take() {
                 if child.index == *key {
-                    node.left = Node::find_inorder_successor(child);
-                    return Ok(());
+                    node.left = Node::find_inorder_successor(&mut child);
+                    if node.left.is_some() {
+                        return Ok(Node::check_balance(node));
+                    }
+                    return Ok(node);
                 } else {
                     return Node::search_child_to_delete(child, key);
                 }
             }
-            return Err(());
+            return Err(node);
         } else if *key > node.index {
-            if let Some(child) = node.right.as_mut() {
+            if let Some(mut child) = node.right.take() {
                 if child.index == *key {
-                    node.right = Node::find_inorder_successor(child);
-                    return Ok(());
+                    node.right = Node::find_inorder_successor(&mut child);
+                    if node.right.is_some() {
+                        return Ok(Node::check_balance(node));
+                    }
+                    return Ok(node);
                 } else {
                     return Node::search_child_to_delete(child, key);
                 }
             }
-            return Err(());
+            return Err(node);
         }
         panic!("node index was equal to key in search_child_to_delete");
     }
