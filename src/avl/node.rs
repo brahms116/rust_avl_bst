@@ -33,41 +33,7 @@ impl<K: PartialOrd, V> Node<K, V> {
         return Some(node);
     }
 
-    pub fn search_child_to_delete(
-        mut node: Box<Node<K, V>>,
-        key: &K,
-    ) -> Result<Box<Node<K, V>>, Box<Node<K, V>>> {
-        if *key < node.index {
-            if let Some(mut child) = node.left.take() {
-                if child.index == *key {
-                    node.left = Node::find_inorder_successor(&mut child);
-                    if node.left.is_some() {
-                        return Ok(Node::check_balance(node));
-                    }
-                    return Ok(node);
-                } else {
-                    return Node::search_child_to_delete(child, key);
-                }
-            }
-            return Err(node);
-        } else if *key > node.index {
-            if let Some(mut child) = node.right.take() {
-                if child.index == *key {
-                    node.right = Node::find_inorder_successor(&mut child);
-                    if node.right.is_some() {
-                        return Ok(Node::check_balance(node));
-                    }
-                    return Ok(node);
-                } else {
-                    return Node::search_child_to_delete(child, key);
-                }
-            }
-            return Err(node);
-        }
-        panic!("node index was equal to key in search_child_to_delete");
-    }
-
-    pub fn find_inorder_successor(node: &mut Box<Node<K, V>>) -> Option<Box<Node<K, V>>> {
+    pub fn find_replacement(mut node: Box<Node<K, V>>) -> Option<Box<Node<K, V>>> {
         if node.left.is_none() && node.right.is_none() {
             return None;
         }
@@ -76,33 +42,101 @@ impl<K: PartialOrd, V> Node<K, V> {
         }
         let mut right_node = node.right.take().unwrap();
         if right_node.left.is_none() && right_node.right.is_none() {
-            return Some(right_node);
+            return Some(Node::replace_node(node, right_node));
         }
-        if right_node.right.is_none() {
-            return Some(right_node.right.unwrap());
-        }
-        Some(Node::retrieve_successor_from_child(&mut right_node).unwrap())
+        let result = Node::retrieve_successor_from_child(&mut right_node).unwrap();
+        node.right = Some(Node::check_balance(right_node));
+        return Some(Node::replace_node(node, result));
+    }
+
+    pub fn replace_node(
+        mut node: Box<Node<K, V>>,
+        mut replacement: Box<Node<K, V>>,
+    ) -> Box<Node<K, V>> {
+        replacement.left = node.left.take();
+        replacement.right = node.right.take();
+        return replacement;
     }
 
     pub fn retrieve_successor_from_child(
         node: &mut Box<Node<K, V>>,
     ) -> Result<Box<Node<K, V>>, ()> {
-        if let Some(mut child) = node.left.as_mut() {
-            if child.left.is_some() || child.right.is_some() {
-                return Node::retrieve_successor_from_child(&mut child);
+        if let Some(mut child) = node.left.take() {
+            if child.left.is_some() {
+                let result = Node::retrieve_successor_from_child(&mut child);
+                node.left = Some(Node::check_balance(child));
+                return result;
             }
-            let successor = node.left.take();
-            return Ok(successor.unwrap());
+            node.left = child.right.take();
+            return Ok(child);
         }
-        if let Some(mut child) = node.right.as_mut() {
-            if child.left.is_some() || child.right.is_some() {
-                return Node::retrieve_successor_from_child(&mut child);
-            }
-            let successor = node.right.take();
-            return Ok(successor.unwrap());
-        }
-
         Err(())
+    }
+
+    pub fn search_child_to_delete(
+        mut node: Box<Node<K, V>>,
+        key: &K,
+    ) -> Result<Box<Node<K, V>>, Box<Node<K, V>>> {
+        /* If key is smaller, check left child */
+        if *key < node.index {
+            /* Checks left child exists */
+            if let Some(child) = node.left.take() {
+                /* If left child is the item to be deleted */
+                if child.index == *key {
+                    println!("left child is key");
+                    let replacement = Node::find_replacement(child);
+
+                    /* If the replacement is not None, ie bottom leaf */
+                    if let Some(rep) = replacement {
+                        node.left = Some(Node::check_balance(rep));
+                        return Ok(Node::check_balance(node));
+                    }
+                    /* Replacement is None, bottom leaf */
+                    return Ok(Node::check_balance(node));
+                }
+                /* Left child is not the item to delete, dig deeper */
+                else {
+                    match Node::search_child_to_delete(child, key) {
+                        Ok(res) => {
+                            node.left = Some(res);
+                            return Ok(Node::check_balance(node));
+                        }
+                        Err(res) => {
+                            node.left = Some(res);
+                            return Err(node);
+                        }
+                    }
+                }
+            }
+            /*Left child doesn't exist */
+            return Err(node);
+        }
+        /* Check right child */
+        else if *key > node.index {
+            if let Some(child) = node.right.take() {
+                if child.index == *key {
+                    let replacement = Node::find_replacement(child);
+                    if let Some(rep) = replacement {
+                        node.left = Some(Node::check_balance(rep));
+                        return Ok(Node::check_balance(node));
+                    }
+                    return Ok(Node::check_balance(node));
+                } else {
+                    match Node::search_child_to_delete(child, key) {
+                        Ok(res) => {
+                            node.right = Some(res);
+                            return Ok(Node::check_balance(node));
+                        }
+                        Err(res) => {
+                            node.right = Some(res);
+                            return Err(node);
+                        }
+                    }
+                }
+            }
+            return Err(node);
+        }
+        panic!("node index was equal to key in search_child_to_delete");
     }
 
     pub fn insert(mut node: Box<Node<K, V>>, insert_item: Box<Node<K, V>>) -> Box<Node<K, V>> {
@@ -133,28 +167,28 @@ impl<K: PartialOrd, V> Node<K, V> {
             let left = Node::find_left_height(&child);
             let right = Node::find_right_height(&child);
 
-            if left > right {
+            if left >= right {
                 /*leftleft rotate right */
                 return Node::right(node);
             } else {
-                /*leftright rotate  left then right */
-                let mut child = node.left.take().unwrap();
-                child = Node::left(child);
-                return Node::right(child);
+                /*leftright rotate left then right */
+                let child = node.left.take().unwrap();
+                node.left = Some(Node::left(child));
+                return Node::right(node);
             }
         } else if right_height - left_height > 1 {
             let child = node.right.as_ref().unwrap();
             let left = Node::find_left_height(&child);
             let right = Node::find_right_height(&child);
 
-            if right > left {
+            if right >= left {
                 /*rightright rotate left*/
                 return Node::left(node);
             } else {
                 /*rightleft	rotate right then left */
-                let mut child = node.right.take().unwrap();
-                child = Node::right(child);
-                return Node::left(child);
+                let child = node.right.take().unwrap();
+                node.right = Some(Node::right(child));
+                return Node::left(node);
             }
         }
         return node;

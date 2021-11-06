@@ -41,9 +41,9 @@ impl<K: PartialOrd, V> AvlTree<K, V> {
     }
 
     pub fn delete(&mut self, key: &K) -> Result<(), ()> {
-        if let Some(mut node) = self.root.take() {
+        if let Some(node) = self.root.take() {
             if node.index == *key {
-                self.root = Node::find_inorder_successor(&mut node);
+                self.root = Node::find_replacement(node);
                 if let Some(result) = self.root.take() {
                     self.root = Some(Node::check_balance(result));
                 }
