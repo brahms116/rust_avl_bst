@@ -1,7 +1,9 @@
 mod avl_tests;
+mod branch;
 mod inorder_iter;
 mod node;
 
+use branch::Branch;
 use node::Node;
 
 pub struct AvlTree<K: PartialOrd, V> {
