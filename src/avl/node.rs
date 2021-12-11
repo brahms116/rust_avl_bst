@@ -49,7 +49,7 @@ impl<K: PartialOrd, V> Node<K, V> {
         return Some(Node::replace_node(node, result));
     }
 
-    pub fn replace_node(
+    fn replace_node(
         mut node: Box<Node<K, V>>,
         mut replacement: Box<Node<K, V>>,
     ) -> Box<Node<K, V>> {
@@ -58,9 +58,7 @@ impl<K: PartialOrd, V> Node<K, V> {
         return replacement;
     }
 
-    pub fn retrieve_successor_from_child(
-        node: &mut Box<Node<K, V>>,
-    ) -> Result<Box<Node<K, V>>, ()> {
+    fn retrieve_successor_from_child(node: &mut Box<Node<K, V>>) -> Result<Box<Node<K, V>>, ()> {
         if let Some(mut child) = node.left.take() {
             if child.left.is_some() {
                 let result = Node::retrieve_successor_from_child(&mut child);
@@ -194,7 +192,7 @@ impl<K: PartialOrd, V> Node<K, V> {
         return node;
     }
 
-    pub fn right(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
+    fn right(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
         let mut left = node.left.unwrap();
         let left_right_opt = left.right.take();
         node.left = left_right_opt;
@@ -202,7 +200,7 @@ impl<K: PartialOrd, V> Node<K, V> {
         return left;
     }
 
-    pub fn left(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
+    fn left(mut node: Box<Node<K, V>>) -> Box<Node<K, V>> {
         let mut right = node.right.unwrap();
         let right_left_opt = right.left.take();
         node.right = right_left_opt;
@@ -210,19 +208,19 @@ impl<K: PartialOrd, V> Node<K, V> {
         return right;
     }
 
-    pub fn find_right_height(node: &Box<Node<K, V>>) -> i32 {
+    fn find_right_height(node: &Box<Node<K, V>>) -> i32 {
         if let Some(child) = node.right.as_ref() {
             return 1 + Node::find_height(child);
         }
         1
     }
-    pub fn find_left_height(node: &Box<Node<K, V>>) -> i32 {
+    fn find_left_height(node: &Box<Node<K, V>>) -> i32 {
         if let Some(child) = node.left.as_ref() {
             return 1 + Node::find_height(child);
         }
         1
     }
-    pub fn find_height(node: &Box<Node<K, V>>) -> i32 {
+    fn find_height(node: &Box<Node<K, V>>) -> i32 {
         let left_height = Node::find_left_height(node);
         let right_height = Node::find_right_height(node);
 

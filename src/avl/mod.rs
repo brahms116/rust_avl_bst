@@ -1,5 +1,6 @@
 mod avl_tests;
-pub mod node;
+mod inorder_iter;
+mod node;
 
 use node::Node;
 
@@ -66,5 +67,9 @@ impl<K: PartialOrd, V> AvlTree<K, V> {
     }
     pub fn get_root(&mut self) -> Option<&mut Box<Node<K, V>>> {
         self.root.as_mut()
+    }
+
+    pub fn take_root(mut self) -> Option<Box<Node<K, V>>> {
+        self.root.take()
     }
 }

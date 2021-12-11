@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use super::super::inorder_iter::InorderIterator;
     use crate::avl::AvlTree;
     #[test]
     fn insertion_retrieval() {
@@ -130,5 +131,17 @@ mod tests {
                 .index,
             150
         );
+    }
+
+    #[test]
+    fn test_inorder_iter() {
+        let mut tree = AvlTree::<i32, i32>::new();
+        for i in 0..100 {
+            tree.insert(100 - i, 100 - i)
+        }
+        let mut iter = InorderIterator::new(tree, Some(&50), None);
+        for i in 50..101 {
+            assert_eq!(iter.next().unwrap(), i)
+        }
     }
 }
