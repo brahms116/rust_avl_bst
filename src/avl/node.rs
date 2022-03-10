@@ -24,24 +24,24 @@ impl<K: PartialOrd, V> Node<K, V> {
         directions: &Vec<Branch>,
     ) -> Option<&'a mut Box<Node<K, V>>> {
         let mut result = node;
-        for i in directions {
-            match i {
-                Branch::Left => {
-                    if result.left.is_some() {
-                        result = result.left.as_mut().unwrap()
-                    } else {
-                        return None;
-                    }
-                }
-                Branch::Right => {
-                    if result.right.is_some() {
-                        result = result.right.as_mut().unwrap();
-                    } else {
-                        return None;
-                    }
-                }
-            }
-        }
+        // for i in directions {
+        //     match i {
+        //         Branch::Left => {
+        //             if result.left.is_some() {
+        //                 result = result.left.as_mut().unwrap();
+        //             } else {
+        //                 return None;
+        //             }
+        //         }
+        //         Branch::Right => {
+        //             if result.right.is_some() {
+        //                 result = result.right.as_mut().unwrap();
+        //             } else {
+        //                 return None;
+        //             }
+        //         }
+        //     }
+        // }
         return Some(result);
     }
 
